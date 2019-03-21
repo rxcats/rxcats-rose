@@ -37,7 +37,9 @@ public class MessageService {
         }
 
         try {
-            session.sendMessage(new TextMessage(toJson(response)));
+            String payload = toJson(response);
+            log.info("response: [session:{}] [payload:{}]", session.getId(), payload);
+            session.sendMessage(new TextMessage(payload));
         } catch (IOException e) {
             log.error("send message error : {}", e.getMessage());
         }

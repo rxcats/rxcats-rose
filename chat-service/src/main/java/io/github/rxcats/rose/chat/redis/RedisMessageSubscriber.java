@@ -27,11 +27,11 @@ public class RedisMessageSubscriber implements MessageListener {
 
     @Override
     public void onMessage(Message message, byte[] pattern) {
-        log.info("pattern:{}", new String(pattern));
-        log.info("message:{}", new String(message.getBody()));
-        log.info("channel:{}", new String(message.getChannel()));
-
         var topic = new String(pattern);
+
+        if (log.isInfoEnabled()) {
+            log.info("onMessage [topic:{}] [payload:{}]", topic, new String(message.getBody()));
+        }
 
         if (Define.KEY_CHATROOM.equals(topic)) {
 

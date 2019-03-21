@@ -12,6 +12,8 @@ import org.springframework.web.socket.server.standard.ServletServerContainerFact
 @Configuration
 public class WsConfig implements WebSocketConfigurer {
 
+    private static final int MAX_MESSAGE_SIZE = 16 * 1024 * 1024;
+
     @Autowired
     WsHandler handler;
 
@@ -24,8 +26,8 @@ public class WsConfig implements WebSocketConfigurer {
     @Bean
     ServletServerContainerFactoryBean servletServerContainerFactoryBean() {
         var container = new ServletServerContainerFactoryBean();
-        container.setMaxTextMessageBufferSize(8192);
-        container.setMaxBinaryMessageBufferSize(8192);
+        container.setMaxTextMessageBufferSize(MAX_MESSAGE_SIZE);
+        container.setMaxBinaryMessageBufferSize(MAX_MESSAGE_SIZE);
         return container;
     }
 

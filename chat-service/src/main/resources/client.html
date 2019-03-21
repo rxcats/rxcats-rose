@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>Demo</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="http://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+            crossorigin="anonymous"></script>
+
+</head>
+<body>
+
+<div class="container-fluid">
+    <div class="input-group mb-3">
+    </div>
+
+    <div class="input-group mb-3">
+        <div class="btn-group mr-1" role="group">
+            <button id="connect" type="button" class="btn btn-secondary">Connect</button>
+        </div>
+
+        <div class="btn-group" role="group">
+            <button id="close" type="button" class="btn btn-secondary">Close</button>
+        </div>
+    </div>
+
+    <div class="input-group mb-3">
+        <div class="input-group-prepend">
+            <span class="input-group-text">@url</span>
+        </div>
+        <input id="url" type="text" class="form-control" placeholder="url" aria-label="url">
+    </div>
+
+    <div class="input-group mb-1">
+        <div class="btn-group mr-1" role="group">
+            <button id="login" type="button" class="btn btn-primary">Login</button>
+        </div>
+
+        <div class="btn-group mr-1" role="group">
+            <button id="joinRoom" type="button" class="btn btn-primary">JoinRoom</button>
+        </div>
+
+        <div class="btn-group" role="group">
+            <button id="leaveRoom" type="button" class="btn btn-primary">LeaveRoom</button>
+        </div>
+    </div>
+
+    <div class="input-group mb-3">
+        <div class="input-group-prepend">
+            <span class="input-group-text">userId</span>
+        </div>
+        <input id="userId" type="text" class="form-control" placeholder="userId" aria-label="userId">
+    </div>
+
+    <div class="input-group mb-1">
+        <button id="send" type="button" class="btn btn-success">Send</button>
+    </div>
+
+    <div class="input-group mb-3">
+        <div class="input-group-prepend">
+            <span class="input-group-text">Message</span>
+        </div>
+        <textarea id="message" class="form-control" aria-label="Message"></textarea>
+    </div>
+
+    <div class="input-group mb-3">
+        <div class="input-group-prepend">
+            <span class="input-group-text">Console</span>
+        </div>
+        <textarea id="console" class="form-control" aria-label="Console" disabled="disabled" rows="20"></textarea>
+    </div>
+
+</div>
+
+
+<script>
+    $(() => {
+        const defaultUrl = 'ws://localhost:8080/api';
+        const defaultUserId = 1000000001;
+
+        $('#url').val(defaultUrl);
+        $('#userId').val(defaultUserId);
+
+        let socket;
+
+        $.fn.login = () => {
+            const msg = {
+                uri: '/chat/v1/login',
+                body: {
+                    userId: $('#userId').val() // "1000000001"
+                }
+            };
+
+            $(this).send(msg);
+        };
+
+        $.fn.createRoom = () => {
+            const msg = {
+                uri: '/chat/v1/createRoom',
+                body: {}
+            };
+
+            $(this).send(msg);
+        };
+
+        $.fn.joinRoom = () => {
+            const msg = {
+                uri: '/chat/v1/joinRoom',
+                body: {}
+            };
+
+            $(this).send(msg);
+        };
+
+        $.fn.leaveRoom = () => {
+            const msg = {
+                uri: '/chat/v1/leaveRoom',
+                body: {}
+            };
+
+            $(this).send(msg);
+        };
+
+        $.fn.sendMessage = () => {
+            const msg = {
+                uri: '/chat/v1/sendMessage',
+                body: {
+                    message: $('#message').val()
+                }
+            };
+
+            $(this).send(msg);
+        };
+
+        $.fn.connect = () => {
+            if (socket === undefined) {
+                const url = $('#url').val();
+
+                socket = new WebSocket(url);
+
+                socket.onopen = () => {
+                    $(this).log('onopen');
+                };
+
+                socket.onmessage = (evt) => {
+                    $(this).log(`onmessage ${evt.data}`);
+                };
+
+                socket.onclose = () => {
+                    $(this).log('onclose');
+                    socket = undefined;
+                };
+            }
+        };
+
+        $.fn.send = (msg) => {
+            socket.send(JSON.stringify(msg));
+        };
+
+        $.fn.disconnect = () => {
+            socket.close();
+        };
+
+        $.fn.log = (log) => {
+            $('#console').append(log + "\n");
+        };
+
+        $('#connect').on('click', () => {
+            $(this).connect();
+        });
+
+        $('#login').on('click', () => {
+            $(this).login();
+        });
+
+        $('#close').on('click', () => {
+            $(this).disconnect();
+        });
+
+        $('#joinRoom').on('click', () => {
+            $(this).joinRoom();
+        });
+
+        $('#leaveRoom').on('click', () => {
+            $(this).leaveRoom();
+        });
+
+        $('#send').on('click', () => {
+            $(this).sendMessage();
+        });
+    });
+</script>
+
+</body>
+</html>

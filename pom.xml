@@ -31,6 +31,10 @@
         <wagon-maven-plugin.version>2.0.0</wagon-maven-plugin.version>
     </properties>
 
+    <modules>
+        <module>chat-service</module>
+    </modules>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>

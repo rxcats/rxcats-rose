@@ -28,37 +28,30 @@ public class WsHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        log.info("connection established");
-        log.info("session : {}", session);
+        log.info("connection established [session:{}]", session);
         sessionService.open(session);
     }
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        log.info("receive message");
-        log.info("session : {}", session);
-        log.info("message : {}", message);
+        log.info("receive message : [session:{}] [message:{}]", session, message.getPayload());
         wsMessageConverter.execute(session, message.getPayload());
     }
 
     @Override
     protected void handlePongMessage(WebSocketSession session, PongMessage message) throws Exception {
-        log.info("receive pong");
-        log.info("session : {}", session);
-        log.info("message : {}", message);
+        log.info("receive pong : [session:{}] [message:{}]", session, message);
     }
 
     @Override
     public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
-        log.warn("transport error");
-        log.info("session : {}", session);
+        log.error("transport error : [session:{}]", session);
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-        log.info("connection closed");
-        log.info("session : {}", session);
-        chatService.leaveRoom(session.getId());
-        sessionService.close(session);
+        log.info("connection closed : [session:{}]", session);
+        sessionService.close(session); // first remove session
+        chatService.leaveRoom(session.getId()); // then leave event to broadcast.
     }
 }

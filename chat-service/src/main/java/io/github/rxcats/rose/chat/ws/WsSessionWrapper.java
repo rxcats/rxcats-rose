@@ -4,41 +4,40 @@ import org.springframework.web.socket.WebSocketSession;
 
 import lombok.Data;
 
+import io.github.rxcats.rose.chat.ws.model.WsUser;
+
 @Data
 public class WsSessionWrapper {
 
-    private WebSocketSession session;
-
     private String sessionId;
 
-    private long createdAt;
+    private WebSocketSession session;
 
-    private String userId;
+    private long createdTime;
 
-    private Long loginAt;
-
-    private String roomId;
-
-    private Long joinAt;
+    private WsUser user;
 
     public WsSessionWrapper(WebSocketSession session) {
         this.session = session;
         this.sessionId = session.getId();
-        this.createdAt = System.currentTimeMillis();
+        this.createdTime = System.currentTimeMillis();
     }
 
     public void setLogin(String userId) {
-        this.userId = userId;
-        this.loginAt = System.currentTimeMillis();
+        if (this.user == null) {
+            this.user = new WsUser();
+        }
+        this.user.setUserId(userId);
+        this.user.setLoginTime(System.currentTimeMillis());
     }
 
     public void joinRoom(String roomId) {
-        this.roomId = roomId;
-        this.joinAt = System.currentTimeMillis();
+        this.user.setRoomId(roomId);
+        this.user.setJoinTime(System.currentTimeMillis());
     }
 
     public void leaveRoom() {
-        this.roomId = null;
-        this.joinAt = null;
+        this.user.setRoomId(null);
+        this.user.setJoinTime(null);
     }
 }

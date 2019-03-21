@@ -1,25 +1,42 @@
 package io.github.rxcats.rose.chat.ws;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.springframework.stereotype.Component;
+import lombok.extern.slf4j.Slf4j;
 
-@Component
+@Slf4j
 public class WsSessionManager {
 
     private static Map<String, WsSessionWrapper> wsSessionMap = new ConcurrentHashMap<>();
 
-    public static void put(String key, WsSessionWrapper session) {
-        wsSessionMap.put(key, session);
+    private WsSessionManager() {
+
     }
 
-    public static void remove(String key) {
-        wsSessionMap.remove(key);
+    public static void put(String id, WsSessionWrapper session) {
+        wsSessionMap.put(id, session);
     }
 
-    public static WsSessionWrapper get(String key) {
-        return wsSessionMap.get(key);
+    public static void remove(String id) {
+        wsSessionMap.remove(id);
+    }
+
+    public static WsSessionWrapper get(String id) {
+        return wsSessionMap.get(id);
+    }
+
+    public static void clean() {
+        wsSessionMap.forEach((id, session) -> {
+            try {
+                log.info("session clean: [session:{}]", session);
+                session.getSession().close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+        wsSessionMap.clear();
     }
 
 }

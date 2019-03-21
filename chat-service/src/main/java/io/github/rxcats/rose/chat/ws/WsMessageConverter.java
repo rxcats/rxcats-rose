@@ -52,13 +52,13 @@ public class WsMessageConverter {
         Map<String, Object> request;
 
         try {
-            log.info("request: [session:{}] [payload: {}]]", session.getId(), payload);
+            log.info("request: [session:{}] [payload:{}]]", session.getId(), payload);
 
             // @formatter:off
             request = objectMapper.readValue(payload, new TypeReference<Map<String, Object>>() {});
             // @formatter:on
 
-            log.info("request: [session:{}] [request: {}]", session.getId(), request);
+            log.info("request: [session:{}] [request:{}]", session.getId(), request);
         } catch (IOException e) {
             messageService.sendErrorMessage(session, "invalid request");
             log.error("invalid request: [session:{}] [error:{}]", session.getId(), e.getMessage());
@@ -73,7 +73,9 @@ public class WsMessageConverter {
             Object[] args = convertMethodParam(wsController, request, session);
             var cmd = new WsCommand(wsController.getBean(), wsController.getMethod(), args, wsController.getHystrixThreadGroup());
             Future<Object> queue = cmd.queue();
-            messageService.sendMessage(session, uri, queue.get());
+            Object result = queue.get();
+            messageService.sendMessage(session, uri, result);
+            log.info("response: [session:{}] [result:{}]", session.getId(), result);
         } catch (Exception e) {
             messageService.sendErrorMessage(session, uri, e.getMessage());
             log.error("response error [session:{}] [uri:{}] [error:{}]", session.getId(), uri, e.getMessage());

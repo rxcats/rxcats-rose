@@ -34,19 +34,11 @@ public class ChatService {
     @Autowired
     MessageService messageService;
 
-    public void createRoom(String id, String userId) {
-        var member = new HashMap<String, String>();
-        member.put("id", id);
-        member.put("userId", userId);
-        member.put("avater", "https://api.adorable.io/avatars/65/abott@adorable.png");
-        redisTemplate.opsForHash().put(Define.DEMO_ROOM_ID, id, member);
-    }
-
     public void joinRoom(String id, String userId) {
         var member = new HashMap<String, String>();
         member.put("id", id);
         member.put("userId", userId);
-        member.put("avater", "https://api.adorable.io/avatars/65/abott@adorable.png");
+        member.put("avatar", "https://api.adorable.io/avatars/65/abott@adorable.png");
         redisTemplate.opsForHash().put(Define.DEMO_ROOM_ID, id, member);
 
         publisher.publish(Define.KEY_CHATROOM, BroadcastMessage.of(Define.DEMO_ROOM_ID, "system", userId + " has joined."));
