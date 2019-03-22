@@ -17,6 +17,7 @@ public class ServiceException extends RuntimeException {
 
     public ServiceException(ResultCode code, String message) {
         super(message);
+        this.code = code;
     }
 
     public ResultCode getCode() {
