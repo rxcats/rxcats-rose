@@ -41,12 +41,24 @@ public class ChatService {
     @Autowired
     MessageService messageService;
 
-    public List<String> searchRoom() {
-        Set<String> keys = redisTemplate.keys(Define.KEY_ROOM_INFO);
-        if (CollectionUtils.isEmpty(keys)) {
-            return Collections.emptyList();
+    public String searchRoom() {
+        Set<String> ids = redisTemplate.keys(Define.KEY_ROOM_INFO);
+        if (CollectionUtils.isEmpty(ids)) {
+            return null;
+        } else {
+            return ids.stream().findAny().orElse(null);
         }
-        return new ArrayList<>(keys);
+    }
+
+    public void createRoom(WsSessionWrapper wrapper) {
+        String roomId = createRoomId();
+        var roomUser = RoomUser.of(wrapper.getSessionId(), wrapper.getUser().getUserId());
+        redisTemplate.opsForHash().put(roomId, wrapper.getSessionId(), roomUser);
+        wrapper.joinRoom(roomId);
+    }
+
+    private String createRoomId() {
+        return Define.KEY_ROOM_INFO + ":" + System.currentTimeMillis();
     }
 
     /**
@@ -56,16 +68,9 @@ public class ChatService {
      */
     public void joinRoom(WsSessionWrapper wrapper, String roomId) {
         if (StringUtils.isEmpty(roomId)) {
-            List<String> roomIds = this.searchRoom();
-
-            // 방이 없으면 신규 생성, 있으면 랜덤 선택
-            if (roomIds.size() == 0) {
-                roomId = Define.KEY_ROOM_INFO + ":" + System.currentTimeMillis();
-            } else if (roomIds.size() == 1) {
-                roomId = roomIds.get(0);
-            } else {
-                Collections.shuffle(roomIds);
-                roomId = roomIds.get(0);
+            roomId = searchRoom();
+            if (roomId == null) {
+                roomId = createRoomId();
             }
         } else {
             Boolean check = redisTemplate.hasKey(roomId);
@@ -74,23 +79,22 @@ public class ChatService {
             }
         }
 
-        wrapper.joinRoom(roomId);
-        RoomUser roomUser = RoomUser.of(wrapper.getSessionId(), wrapper.getUser().getUserId());
+        var roomUser = RoomUser.of(wrapper.getSessionId(), wrapper.getUser().getUserId());
         redisTemplate.opsForHash().put(roomId, wrapper.getSessionId(), roomUser);
+        wrapper.joinRoom(roomId);
+
         publisher.publish(Define.KEY_CHATROOM_TOPIC, BroadcastMessage.of(roomId, "system", wrapper.getUser().getUsername() + " has joined."));
     }
 
-    public void leaveRoom(WsSessionWrapper wrapper) {
-        RoomUser roomUser = (RoomUser) redisTemplate.opsForHash().get(wrapper.getUser().getRoomId(), wrapper.getSession());
-        if (roomUser != null) {
-            wrapper.leaveRoom();
-            redisTemplate.opsForHash().delete(wrapper.getUser().getRoomId(), wrapper.getSession());
+    public void leaveRoom(WsSessionWrapper wrapper, boolean force) {
+        Boolean isJoined = redisTemplate.opsForHash().hasKey(wrapper.getUser().getRoomId(), wrapper.getSessionId());
+        if (isJoined != null && isJoined) {
+            if (!force) {
+                wrapper.leaveRoom();
+            }
+            redisTemplate.opsForHash().delete(wrapper.getUser().getRoomId(), wrapper.getSessionId());
             publisher.publish(Define.KEY_CHATROOM_TOPIC, BroadcastMessage.of(wrapper.getUser().getRoomId(), "system", wrapper.getUser().getUsername() + " has left."));
         }
-    }
-
-    public void forceLeaveRoom(String sessionId, String roomId) {
-        redisTemplate.opsForHash().delete(roomId, sessionId);
     }
 
     public void sendMessage(WsSessionWrapper wrapper, String message) {

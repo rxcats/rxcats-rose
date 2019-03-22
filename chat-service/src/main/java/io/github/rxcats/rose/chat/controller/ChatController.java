@@ -5,16 +5,15 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.socket.WebSocketSession;
 
-import io.github.rxcats.rose.chat.constant.Define;
 import io.github.rxcats.rose.chat.model.message.JoinRoomRequest;
 import io.github.rxcats.rose.chat.model.message.SendMessageRequest;
 import io.github.rxcats.rose.chat.service.ChatService;
+import io.github.rxcats.rose.chat.service.SessionService;
 import io.github.rxcats.rose.chat.ws.WsSessionWrapper;
 import io.github.rxcats.rose.chat.ws.annotation.WsController;
 import io.github.rxcats.rose.chat.ws.annotation.WsMethod;
 import io.github.rxcats.rose.chat.ws.annotation.WsRequestBody;
 import io.github.rxcats.rose.chat.ws.annotation.WsSession;
-import io.github.rxcats.rose.chat.service.SessionService;
 
 /**
  * createRoom
@@ -29,7 +28,7 @@ import io.github.rxcats.rose.chat.service.SessionService;
  * sendMessage
  * {"uri":"/chat/v1/sendMessage", "body":{"message":"hello everyone!!!"}}
  */
-@WsController(prefix = Define.CHAT_URI_PREFIX)
+@WsController(prefix = "/chat/v1")
 public class ChatController {
 
     @Autowired
@@ -40,8 +39,8 @@ public class ChatController {
 
     @WsMethod(uri = "/createRoom")
     public void createRoom(@WsSession WebSocketSession session) {
-//        WsSessionWrapper wrapper = sessionService.joinRoom(session, Define.DEMO_ROOM_ID);
-//        chatService.joinRoom(wrapper);
+        WsSessionWrapper wrapper = sessionService.checkJoinRoomAndGet(session);
+        chatService.createRoom(wrapper);
     }
 
     @WsMethod(uri = "/joinRoom")
@@ -59,7 +58,7 @@ public class ChatController {
     @WsMethod(uri = "/leaveRoom")
     public void leaveRoom(@WsSession WebSocketSession session) {
         WsSessionWrapper wrapper = sessionService.checkLoginAndGet(session);
-        chatService.leaveRoom(wrapper);
+        chatService.leaveRoom(wrapper, false);
     }
 
 }

@@ -1,7 +1,5 @@
 package io.github.rxcats.rose.chat.service;
 
-import java.io.IOException;
-
 import javax.annotation.PreDestroy;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,16 +29,10 @@ public class SessionService {
         WsSessionWrapper wrapper = this.checkLoginAndGet(session);
         if (wrapper.getUser().getRoomId() != null) {
             result.setJoined(true);
-            result.setRoomId(wrapper.getUser().getRoomId());
+            result.setWsSessionWrapper(wrapper);
         }
 
         WsSessionManager.remove(session.getId());
-
-        try {
-            session.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
         return result;
     }
@@ -79,6 +71,9 @@ public class SessionService {
 
     public WsSessionWrapper checkJoinRoomAndGet(WebSocketSession session) {
         var wrapper = WsSessionManager.get(session.getId());
+        if (wrapper == null) {
+            throw new ServiceException("session is not yet logged in");
+        }
 
         if (wrapper.getUser().getRoomId() != null) {
             throw new ServiceException("session already joined room");

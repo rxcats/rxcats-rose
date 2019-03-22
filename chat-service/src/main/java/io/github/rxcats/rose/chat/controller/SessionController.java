@@ -1,19 +1,20 @@
 package io.github.rxcats.rose.chat.controller;
 
+import java.io.IOException;
+
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.socket.WebSocketSession;
 
-import io.github.rxcats.rose.chat.constant.Define;
 import io.github.rxcats.rose.chat.model.message.LoginRequest;
 import io.github.rxcats.rose.chat.model.result.CheckJoinRoomResult;
 import io.github.rxcats.rose.chat.service.ChatService;
+import io.github.rxcats.rose.chat.service.SessionService;
 import io.github.rxcats.rose.chat.ws.annotation.WsController;
 import io.github.rxcats.rose.chat.ws.annotation.WsMethod;
 import io.github.rxcats.rose.chat.ws.annotation.WsRequestBody;
 import io.github.rxcats.rose.chat.ws.annotation.WsSession;
-import io.github.rxcats.rose.chat.service.SessionService;
 
 /**
  * login
@@ -22,7 +23,7 @@ import io.github.rxcats.rose.chat.service.SessionService;
  * logout
  * {"uri":"/session/v1/logout", "body":{}}
  */
-@WsController(prefix = Define.SESSION_URI_PREFIX)
+@WsController(prefix = "/session/v1")
 public class SessionController {
 
     @Autowired
@@ -38,10 +39,16 @@ public class SessionController {
 
     @WsMethod(uri = "/logout")
     public void logout(@WsSession WebSocketSession session) {
-        String id = session.getId();
         CheckJoinRoomResult rs = sessionService.checkJoinRoomAndLogout(session);
+
+        try {
+            session.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         if (rs.isJoined()) {
-            chatService.forceLeaveRoom(id, rs.getRoomId());
+            chatService.leaveRoom(rs.getWsSessionWrapper(), true);
         }
     }
 
