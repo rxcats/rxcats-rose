@@ -3,23 +3,23 @@ package io.github.rxcats.rose.chat;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.RedisTemplate;
 
 import lombok.extern.slf4j.Slf4j;
 
 import io.github.rxcats.rose.chat.model.UserInfo;
-import io.github.rxcats.rose.chat.service.UserService;
 
 @Slf4j
 @SpringBootTest
-class UserServiceTest {
+class RedisTemplateTest {
 
     @Autowired
-    UserService service;
+    RedisTemplate<String, Object> redisTemplate;
 
     @Test
-    void getUserTest() {
-        UserInfo user = service.get("1000000001");
-        log.info("user:{}", user);
+    void test() {
+        var userInfo = (UserInfo) redisTemplate.opsForHash().get("userInfo", "1000000009");
+        log.info("userInfo:{}", userInfo);
     }
 
 }

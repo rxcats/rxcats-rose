@@ -1,6 +1,7 @@
 package io.github.rxcats.rose.chat.ws;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
@@ -23,6 +24,7 @@ public class WsConfig implements WebSocketConfigurer {
             .setAllowedOrigins("*");
     }
 
+    @ConditionalOnBean
     @Bean
     ServletServerContainerFactoryBean servletServerContainerFactoryBean() {
         var container = new ServletServerContainerFactoryBean();

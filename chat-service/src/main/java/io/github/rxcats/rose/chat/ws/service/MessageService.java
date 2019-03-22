@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 
 import io.github.rxcats.rose.chat.constant.Define;
+import io.github.rxcats.rose.chat.model.message.ResultCode;
 import io.github.rxcats.rose.chat.model.message.WsResponseEntity;
 
 @Slf4j
@@ -49,12 +50,20 @@ public class MessageService {
         sendMessage(session, WsResponseEntity.of(uri, message));
     }
 
+    public void sendCmdNotFoundErrorMessage(WebSocketSession session, String uri, ResultCode code) {
+        sendMessage(session, WsResponseEntity.error(code, uri));
+    }
+
     public void sendErrorMessage(WebSocketSession session, String stack) {
         sendMessage(session, WsResponseEntity.error(Define.CHAT_ERROR_URI, stack));
     }
 
     public void sendErrorMessage(WebSocketSession session, String uri, String stack) {
         sendMessage(session, WsResponseEntity.error(uri, stack));
+    }
+
+    public void sendErrorMessage(WebSocketSession session, String uri, ResultCode code, String stack) {
+        sendMessage(session, WsResponseEntity.error(code, uri, stack));
     }
 
 }

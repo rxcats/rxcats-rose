@@ -33,7 +33,7 @@ public class RedisMessageSubscriber implements MessageListener {
             log.info("onMessage [topic:{}] [payload:{}]", topic, new String(message.getBody()));
         }
 
-        if (Define.KEY_CHATROOM.equals(topic)) {
+        if (Define.KEY_CHATROOM_TOPIC.equals(topic)) {
 
             try {
                 BroadcastMessage bm = objectMapper.readValue(message.getBody(), BroadcastMessage.class);

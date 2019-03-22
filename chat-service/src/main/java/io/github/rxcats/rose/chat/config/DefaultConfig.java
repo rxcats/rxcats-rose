@@ -22,11 +22,11 @@ public class DefaultConfig {
     }
 
     @Bean
-    public ObjectMapper objectMapper() {
-        return Jackson2ObjectMapperBuilder.json()
+    public ObjectMapper objectMapper(Jackson2ObjectMapperBuilder builder) {
+        return builder
             .featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
             // .serializationInclusion(JsonInclude.Include.NON_NULL)
-            .modules(new JavaTimeModule(), simpleModule())
+            .modules(new JavaTimeModule())
             .build();
     }
 

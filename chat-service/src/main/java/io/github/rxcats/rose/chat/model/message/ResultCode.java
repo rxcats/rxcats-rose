@@ -8,8 +8,9 @@ import lombok.Getter;
 public enum ResultCode {
 
     ok(0, "Success"),
-    error(900001, "Service Error"),
-    invalid_parameter(900002, "Invalid Parameter"),
+    error(900001, "Service error"),
+    command_not_found(900002, "Command not found"),
+    invalid_parameter(900003, "Invalid parameter"),
 
     ;
 

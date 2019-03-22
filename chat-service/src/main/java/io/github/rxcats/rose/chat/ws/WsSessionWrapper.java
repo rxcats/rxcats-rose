@@ -23,11 +23,13 @@ public class WsSessionWrapper {
         this.createdTime = System.currentTimeMillis();
     }
 
-    public void setLogin(String userId) {
+    public void setLogin(String userId, String username, String avatar) {
         if (this.user == null) {
             this.user = new WsUser();
         }
         this.user.setUserId(userId);
+        this.user.setUsername(username);
+        this.user.setAvatar(avatar);
         this.user.setLoginTime(System.currentTimeMillis());
     }
 

@@ -16,14 +16,4 @@ public @interface WsController {
 
     String prefix() default "";
 
-    String desc() default "";
-
-    String groupName() default "";
-
-    int threadSize() default 10;
-
-    int queueSize() default 50;
-
-    int timeout() default 3000;
-
 }

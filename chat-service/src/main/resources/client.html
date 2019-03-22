@@ -17,6 +17,7 @@
     <div class="input-group mb-3">
     </div>
 
+    <!-- connection -->
     <div class="input-group mb-3">
         <div class="btn-group mr-1" role="group">
             <button id="connect" type="button" class="btn btn-secondary">Connect</button>
@@ -33,12 +34,25 @@
         </div>
         <input id="url" type="text" class="form-control" placeholder="url" aria-label="url">
     </div>
+    <!-- // connection -->
 
+    <!-- login -->
     <div class="input-group mb-1">
         <div class="btn-group mr-1" role="group">
             <button id="login" type="button" class="btn btn-primary">Login</button>
         </div>
+    </div>
 
+    <div class="input-group mb-3">
+        <div class="input-group-prepend">
+            <span class="input-group-text">userId</span>
+        </div>
+        <input id="userId" type="text" class="form-control" placeholder="userId" aria-label="userId">
+    </div>
+    <!-- // login -->
+
+    <!-- room -->
+    <div class="input-group mb-1">
         <div class="btn-group mr-1" role="group">
             <button id="joinRoom" type="button" class="btn btn-primary">JoinRoom</button>
         </div>
@@ -50,11 +64,13 @@
 
     <div class="input-group mb-3">
         <div class="input-group-prepend">
-            <span class="input-group-text">userId</span>
+            <span class="input-group-text">roomId</span>
         </div>
-        <input id="userId" type="text" class="form-control" placeholder="userId" aria-label="userId">
+        <input id="roomId" type="text" class="form-control" placeholder="roomId" aria-label="roomId">
     </div>
+    <!-- // room -->
 
+    <!-- send -->
     <div class="input-group mb-1">
         <button id="send" type="button" class="btn btn-success">Send</button>
     </div>
@@ -65,6 +81,7 @@
         </div>
         <textarea id="message" class="form-control" aria-label="Message"></textarea>
     </div>
+    <!-- // send -->
 
     <div class="input-group mb-3">
         <div class="input-group-prepend">
@@ -80,17 +97,19 @@
     $(() => {
         const defaultUrl = 'ws://localhost:8080/api';
         const defaultUserId = 1000000001;
+        const defaultRoomId = 'chatroom:1';
 
         $('#url').val(defaultUrl);
         $('#userId').val(defaultUserId);
+        $('#roomId').val(defaultRoomId);
 
         let socket;
 
         $.fn.login = () => {
             const msg = {
-                uri: '/chat/v1/login',
+                uri: '/session/v1/login',
                 body: {
-                    userId: $('#userId').val() // "1000000001"
+                    userId: $('#userId').val().trim() // "1000000001"
                 }
             };
 
@@ -109,7 +128,9 @@
         $.fn.joinRoom = () => {
             const msg = {
                 uri: '/chat/v1/joinRoom',
-                body: {}
+                body: {
+                    roomId: $('#roomId').val().trim()
+                }
             };
 
             $(this).send(msg);
@@ -128,7 +149,7 @@
             const msg = {
                 uri: '/chat/v1/sendMessage',
                 body: {
-                    message: $('#message').val()
+                    message: $('#message').val().trim()
                 }
             };
 

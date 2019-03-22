@@ -7,9 +7,10 @@ public class Define {
     public static final String CHAT_BROADCAST_URI = CHAT_URI_PREFIX + "/broadcast";
     public static final String CHAT_SYSTEM_URI = CHAT_URI_PREFIX + "/system";
 
-    public static final String KEY_CHATROOM = "chatroom";
-    public static final String KEY_USER = "user";
-    public static final String DEMO_ROOM_ID = KEY_CHATROOM + ":1";
+    public static final String KEY_CHATROOM_TOPIC = "chatTopic";
+
+    public static final String KEY_USER_INFO = "userInfo";
+    public static final String KEY_ROOM_INFO = "roomInfo";
 
     private Define() {
 

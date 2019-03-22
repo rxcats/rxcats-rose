@@ -32,29 +32,13 @@ public class WsControllerRegister {
 
             WsController clazz = v.getClass().getDeclaredAnnotation(WsController.class);
             String prefix = clazz.prefix();
-            String groupName = clazz.groupName();
-            if (groupName.isBlank()) {
-                groupName = v.getClass().getSimpleName();
-            }
 
             Method[] wsMethods = v.getClass().getMethods();
-
-            var threadGroup = HystrixThreadGroup.builder()
-                .desc(clazz.desc())
-                .groupName(groupName)
-                .threadSize(clazz.threadSize())
-                .queueSize(clazz.queueSize())
-                .timeout(clazz.timeout())
-                .build();
 
             for (var method : wsMethods) {
                 WsMethod wsMethod = method.getDeclaredAnnotation(WsMethod.class);
                 if (wsMethod != null && !wsMethod.uri().isBlank()) {
-                    wsControllerHolder.putIfAbsent(prefix + wsMethod.uri(), WsControllerEntity.builder()
-                        .bean(v)
-                        .method(method)
-                        .hystrixThreadGroup(threadGroup)
-                        .build());
+                    wsControllerHolder.putIfAbsent(prefix + wsMethod.uri(), WsControllerEntity.of(v, method));
                 }
             }
 

@@ -10,9 +10,6 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import lombok.extern.slf4j.Slf4j;
 
-import io.github.rxcats.rose.chat.service.ChatService;
-import io.github.rxcats.rose.chat.ws.service.SessionService;
-
 @Slf4j
 @Component
 public class WsHandler extends TextWebSocketHandler {
@@ -20,16 +17,9 @@ public class WsHandler extends TextWebSocketHandler {
     @Autowired
     WsMessageConverter wsMessageConverter;
 
-    @Autowired
-    SessionService sessionService;
-
-    @Autowired
-    ChatService chatService;
-
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         log.info("connection established [session:{}]", session);
-        sessionService.open(session);
     }
 
     @Override
@@ -51,7 +41,7 @@ public class WsHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         log.info("connection closed : [session:{}]", session);
-        sessionService.close(session); // first remove session
-        chatService.leaveRoom(session.getId()); // then leave event to broadcast.
+        WsSessionManager.remove(session.getId()); // first remove session
+        // chatService.leaveRoom(session.getRoomId()); // then leave event to broadcast.
     }
 }

@@ -1,38 +1,37 @@
-package io.github.rxcats.rose.chat.ws.service;
+package io.github.rxcats.rose.chat.service;
 
 import java.io.IOException;
 
 import javax.annotation.PreDestroy;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.WebSocketSession;
 
 import io.github.rxcats.rose.chat.exception.ServiceException;
+import io.github.rxcats.rose.chat.model.UserInfo;
+import io.github.rxcats.rose.chat.model.result.CheckJoinRoomResult;
 import io.github.rxcats.rose.chat.ws.WsSessionManager;
 import io.github.rxcats.rose.chat.ws.WsSessionWrapper;
 
 @Service
 public class SessionService {
 
+    @Autowired
+    UserService userService;
+
     @PreDestroy
     public void destroy() {
         WsSessionManager.clean();
     }
 
-    public void open(WebSocketSession session) {
-
-    }
-
-    public void close(WebSocketSession session) {
-        WsSessionManager.remove(session.getId());
-    }
-
-    public boolean checkJoinRoomAndLogout(WebSocketSession session) {
-        boolean isJoinRoom = false;
+    public CheckJoinRoomResult checkJoinRoomAndLogout(WebSocketSession session) {
+        var result = new CheckJoinRoomResult();
 
         WsSessionWrapper wrapper = this.checkLoginAndGet(session);
         if (wrapper.getUser().getRoomId() != null) {
-            isJoinRoom = true;
+            result.setJoined(true);
+            result.setRoomId(wrapper.getUser().getRoomId());
         }
 
         WsSessionManager.remove(session.getId());
@@ -43,7 +42,7 @@ public class SessionService {
             e.printStackTrace();
         }
 
-        return isJoinRoom;
+        return result;
     }
 
     public void login(WebSocketSession session, String userId) {
@@ -51,8 +50,12 @@ public class SessionService {
         if (wrapper != null) {
             throw new ServiceException("session already logged in");
         } else {
+            UserInfo userInfo = userService.get(userId);
+            if (userInfo == null) {
+                throw new ServiceException("could not find user");
+            }
             wrapper = new WsSessionWrapper(session);
-            wrapper.setLogin(userId);
+            wrapper.setLogin(userId, userInfo.getUsername(), userInfo.getAvatar());
             WsSessionManager.put(session.getId(), wrapper);
         }
     }
@@ -62,6 +65,11 @@ public class SessionService {
         if (wrapper == null) {
             throw new ServiceException("session is not yet logged in");
         }
+
+        if (wrapper.getUser().getRoomId() == null) {
+            throw new ServiceException("session is not yet joined room");
+        }
+
         return wrapper;
     }
 
@@ -69,9 +77,13 @@ public class SessionService {
         return WsSessionManager.get(session.getId());
     }
 
-    public WsSessionWrapper joinRoom(WebSocketSession session, String roomId) {
-        var wrapper = this.checkLoginAndGet(session);
-        wrapper.joinRoom(roomId);
+    public WsSessionWrapper checkJoinRoomAndGet(WebSocketSession session) {
+        var wrapper = WsSessionManager.get(session.getId());
+
+        if (wrapper.getUser().getRoomId() != null) {
+            throw new ServiceException("session already joined room");
+        }
+
         return wrapper;
     }
 

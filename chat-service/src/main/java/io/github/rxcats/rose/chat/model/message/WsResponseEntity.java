@@ -50,6 +50,10 @@ public class WsResponseEntity<T> {
         return new WsResponseEntity<>(ResultCode.error, uri, null, stack);
     }
 
+    public static <T> WsResponseEntity<T> error(ResultCode code, String uri) {
+        return new WsResponseEntity<>(code, uri, null);
+    }
+
     public static <T> WsResponseEntity<T> error(ResultCode code, String uri, String stack) {
         return new WsResponseEntity<>(code, uri, null, stack);
     }
