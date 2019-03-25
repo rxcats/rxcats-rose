@@ -1,12 +1,8 @@
 package io.github.rxcats.rose.chat.config;
 
-import java.util.concurrent.Executor;
-import java.util.concurrent.ThreadPoolExecutor;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -28,18 +24,6 @@ public class DefaultConfig {
             // .serializationInclusion(JsonInclude.Include.NON_NULL)
             .modules(new JavaTimeModule())
             .build();
-    }
-
-    @Bean
-    public Executor threadPoolTaskExecutor() {
-        var pool = new ThreadPoolTaskExecutor();
-        pool.setCorePoolSize(5);
-        pool.setMaxPoolSize(20);
-        pool.setQueueCapacity(50);
-        pool.setThreadNamePrefix("executor-");
-        pool.setRejectedExecutionHandler(new ThreadPoolExecutor.DiscardPolicy());
-        pool.initialize();
-        return pool;
     }
 
 }

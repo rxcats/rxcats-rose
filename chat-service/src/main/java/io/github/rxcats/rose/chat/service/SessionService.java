@@ -21,6 +21,7 @@ public class SessionService {
     @PreDestroy
     public void destroy() {
         WsSessionManager.clean();
+        WsSessionManager.cleanClosed();
     }
 
     public CheckJoinRoomResult checkJoinRoomAndLogout(WebSocketSession session) {
@@ -79,12 +80,6 @@ public class SessionService {
             throw new ServiceException("session already joined room");
         }
 
-        return wrapper;
-    }
-
-    public WsSessionWrapper leaveRoom(WebSocketSession session) {
-        var wrapper = this.checkLoginAndGet(session);
-        wrapper.leaveRoom();
         return wrapper;
     }
 

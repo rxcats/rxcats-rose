@@ -40,8 +40,10 @@ public class WsHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-        log.info("connection closed : [session:{}]", session);
-        WsSessionManager.remove(session.getId()); // first remove session
-        // chatService.leaveRoom(session.getRoomId()); // then leave event to broadcast.
+        WsSessionWrapper remove = WsSessionManager.remove(session.getId());
+        log.info("connection closed : [session:{}] [remove:{}]", session, remove);
+        if (remove != null && remove.getUser() != null && remove.getUser().getRoomId() != null) {
+            WsSessionManager.putClosed(session.getId(), remove);
+        }
     }
 }

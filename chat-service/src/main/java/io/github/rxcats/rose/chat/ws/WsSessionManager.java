@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 public class WsSessionManager {
 
     private static Map<String, WsSessionWrapper> wsSessionMap = new ConcurrentHashMap<>();
+    private static Map<String, WsSessionWrapper> closedSessionMap = new ConcurrentHashMap<>();
 
     private WsSessionManager() {
 
@@ -19,8 +20,8 @@ public class WsSessionManager {
         wsSessionMap.put(id, session);
     }
 
-    public static void remove(String id) {
-        wsSessionMap.remove(id);
+    public static WsSessionWrapper remove(String id) {
+        return wsSessionMap.remove(id);
     }
 
     public static WsSessionWrapper get(String id) {
@@ -37,6 +38,26 @@ public class WsSessionManager {
             }
         });
         wsSessionMap.clear();
+    }
+
+    public static void putClosed(String id, WsSessionWrapper session) {
+        closedSessionMap.put(id, session);
+    }
+
+    public static WsSessionWrapper removeClosed(String id) {
+        return closedSessionMap.remove(id);
+    }
+
+    public static Map<String, WsSessionWrapper> getAllClosed() {
+        return closedSessionMap;
+    }
+
+    public static WsSessionWrapper getClosed(String id) {
+        return closedSessionMap.get(id);
+    }
+
+    public static void cleanClosed() {
+        closedSessionMap.clear();
     }
 
 }

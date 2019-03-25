@@ -1,13 +1,12 @@
 package io.github.rxcats.rose.chat.service;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -109,6 +108,19 @@ public class ChatService {
                 messageService.sendMessage(wrapper.getSession(), Define.CHAT_BROADCAST_URI, bm);
             }
         });
+    }
+
+    @Scheduled(fixedDelay = 60_000)
+    public void processClosedSession() {
+        Map<String, WsSessionWrapper> allClosed = WsSessionManager.getAllClosed();
+        log.info("allClosed:{}", allClosed);
+        for (Entry<String, WsSessionWrapper> entry : allClosed.entrySet()) {
+            WsSessionWrapper wrapper = WsSessionManager.removeClosed(entry.getKey());
+            if (wrapper != null && entry.getValue().getUser() != null && entry.getValue().getUser().getRoomId() != null) {
+                log.info("processClosedSession [session:{}]", wrapper.getSession());
+                this.leaveRoom(entry.getValue(), true);
+            }
+        }
     }
 
 }
