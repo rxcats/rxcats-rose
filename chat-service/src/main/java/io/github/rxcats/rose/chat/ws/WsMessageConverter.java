@@ -112,8 +112,9 @@ public class WsMessageConverter {
                         boolean useValidator = false;
 
                         for (int k = 0; k < parameterAnnotations[i].length; k++) {
-                            if (!useValidator && parameterAnnotations[i][k] instanceof Valid) {
+                            if (parameterAnnotations[i][k] instanceof Valid) {
                                 useValidator = true;
+                                break;
                             }
                         }
 
